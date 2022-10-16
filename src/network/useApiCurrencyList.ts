@@ -1,9 +1,12 @@
 import useSWR from "swr";
-import { Currency, CurrencyListResponse } from "../models/Currency";
+import { Currency, CurrencyListResponse, CurrencyValueResponse } from "../models/Currency";
 import currencyList from "../sampleData/allCurrency.json";
-import { getCurrencyAsArray } from "../utils/util";
+import liveCurrency from "../sampleData/liveCurrency.json";
 
-const fetcher = (): Promise<any> => {
+import { getCurrencyAsArray } from "../utils/util";
+// data from the following api
+// https://apilayer.com/marketplace/exchangerates_data-api?txn=free&live_demo=show
+const listFetcher = (): Promise<any> => {
   return new Promise((res) => {
     setTimeout(() => {
       res(currencyList);
@@ -11,13 +14,28 @@ const fetcher = (): Promise<any> => {
   });
 };
 
+const currencyValueFetcher = (): Promise<any> => {
+  return new Promise((res) => {
+    setTimeout(() => {
+      res(liveCurrency);
+    }, 3000);
+  });
+};
+
 export function useApiCurrencyList() {
-  const { data, error } = useSWR("/api/list", fetcher);
+  const { data: listData, error: listError } = useSWR("/api/list", listFetcher);
+  const { data: liveData, error: liveError } = useSWR("/api/live", currencyValueFetcher);
+  const error = listError || liveError;
+
   let currencies: Currency[] = [];
-  if (data) {
-    const response = data as CurrencyListResponse;
-    currencies = getCurrencyAsArray(response.currencies);
-    console.log(currencies);
+  
+  const fetchedData = listData && liveData;
+
+  if (fetchedData) {
+    const listResponse = listData as CurrencyListResponse;
+    const valueResponse = liveData as CurrencyValueResponse;
+    currencies = getCurrencyAsArray(listResponse.currencies, valueResponse.rates);
   }
+  
   return { data: currencies, error };
 }

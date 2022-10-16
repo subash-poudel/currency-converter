@@ -2,6 +2,14 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Further Work
+
+Fork Repo.
+Use concept of app initialization.
+Record data to our state mgmt solution.
+Refactor codebase as appropriate.
+Send PR.
+
 ## Available Scripts
 
 In the project directory, you can run:
