@@ -1,5 +1,11 @@
 import useSWR from "swr";
-import { Currency, CurrencyListResponse, CurrencyValueResponse } from "../models/Currency";
+import {
+  Currency,
+  CurrencyData,
+  CurrencyListResponse,
+  CurrencyMap,
+  CurrencyValueResponse,
+} from "../models/Currency";
 import currencyList from "../sampleData/allCurrency.json";
 import liveCurrency from "../sampleData/liveCurrency.json";
 
@@ -24,18 +30,24 @@ const currencyValueFetcher = (): Promise<any> => {
 
 export function useApiCurrencyList() {
   const { data: listData, error: listError } = useSWR("/api/list", listFetcher);
-  const { data: liveData, error: liveError } = useSWR("/api/live", currencyValueFetcher);
+  const { data: liveData, error: liveError } = useSWR(
+    "/api/live",
+    currencyValueFetcher
+  );
   const error = listError || liveError;
 
-  let currencies: Currency[] = [];
-  
+  let currencies: CurrencyData = { list: [], map: {} };
+
   const fetchedData = listData && liveData;
 
   if (fetchedData) {
     const listResponse = listData as CurrencyListResponse;
     const valueResponse = liveData as CurrencyValueResponse;
-    currencies = getCurrencyAsArray(listResponse.currencies, valueResponse.rates);
+    currencies = getCurrencyAsArray(
+      listResponse.currencies,
+      valueResponse.rates
+    );
   }
-  
-  return { data: currencies, error };
+
+  return { data: currencies, error, loading: !fetchedData };
 }
