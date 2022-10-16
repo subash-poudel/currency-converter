@@ -1,0 +1,1 @@
+export const CURRENCY_API_KEY = 'hB6DGm9yTmivEs2Qx5DbKzeH9GN0Limy';
