@@ -1,5 +1,7 @@
 import useSWR from "swr";
+import { Currency, CurrencyListResponse } from "../models/Currency";
 import currencyList from "../sampleData/allCurrency.json";
+import { getCurrencyAsArray } from "../utils/util";
 
 const fetcher = (): Promise<any> => {
   return new Promise((res) => {
@@ -11,7 +13,11 @@ const fetcher = (): Promise<any> => {
 
 export function useApiCurrencyList() {
   const { data, error } = useSWR("/api/list", fetcher);
-  const loading = !data;
-  console.log(data);
-  return { loading, data, error };
+  let currencies: Currency[] = [];
+  if (data) {
+    const response = data as CurrencyListResponse;
+    currencies = getCurrencyAsArray(response.currencies);
+    console.log(currencies);
+  }
+  return { data: currencies, error };
 }
